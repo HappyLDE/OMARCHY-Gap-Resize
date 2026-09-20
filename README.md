@@ -2,6 +2,8 @@
 
 Made by **EURYMEDON INTERACTIVE**.
 
+![Gap Resize preview](preview.png)
+
 Gap Resize adds mouse-first resizing to tiled Omarchy workspaces. Move the
 pointer into the actual shared gap between two tiled windows: a small
 highlighted rail appears only while the pointer is over that gap, and the
