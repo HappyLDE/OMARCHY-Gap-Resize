@@ -4,7 +4,7 @@ function finite(value) {
     return typeof value === "number" && isFinite(value);
 }
 
-function windowGeometry(toplevel) {
+function windowGeometry(toplevel, border) {
     var data = toplevel && toplevel.lastIpcObject ? toplevel.lastIpcObject : toplevel;
     if (!data || data.mapped === false || data.hidden === true) {
         return null;
@@ -28,6 +28,13 @@ function windowGeometry(toplevel) {
     if (!finite(x) || !finite(y) || !finite(width) || !finite(height) || width <= 0 || height <= 0) {
         return null;
     }
+
+    // Hyprland reports the client area; borders are drawn outside it.
+    // Include them so gaps measure the visible space between windows.
+    x -= border;
+    y -= border;
+    width += border * 2;
+    height += border * 2;
 
     return {
         address: data.address || "",
@@ -127,14 +134,15 @@ function mergeVerticalSegments(segments) {
     return result;
 }
 
-function collect(monitor, toplevels, maxGap, minOverlap, minGap) {
+function collect(monitor, toplevels, maxGap, minOverlap, minGap, borderSize) {
     if (!monitor || !toplevels) {
         return [];
     }
 
+    var border = Math.max(0, Number(borderSize) || 0);
     var windows = [];
     for (var i = 0; i < toplevels.length; ++i) {
-        var geometry = windowGeometry(toplevels[i]);
+        var geometry = windowGeometry(toplevels[i], border);
         if (geometry && geometry.address) {
             windows.push(geometry);
         }

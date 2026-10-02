@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Wayland
 import qs.Commons
 import "GapGeometry.js" as GapGeometry
@@ -15,6 +16,7 @@ Item {
     readonly property int minGap: 2
     readonly property color railColor: Color.accent
     property int refreshTick: 0
+    property int borderSize: 0
 
     function refreshLayout() {
         Hyprland.refreshMonitors();
@@ -53,7 +55,8 @@ Item {
             monitor.activeWorkspace.toplevels.values,
             maxGap,
             minOverlap,
-            minGap
+            minGap,
+            borderSize
         );
     }
 
@@ -85,7 +88,24 @@ Item {
 
     Component.onCompleted: {
         disableNativeBorderResize();
+        borderSizeProcess.running = true;
         refreshLayout();
+    }
+
+    Process {
+        id: borderSizeProcess
+        command: ["hyprctl", "getoption", "general:border_size", "-j"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var option = JSON.parse(text);
+                    root.borderSize = Number(option.int) || 0;
+                    root.refreshTick += 1;
+                } catch (e) {
+                    console.warn("gap-resize: could not read general:border_size", e);
+                }
+            }
+        }
     }
 
     Connections {
@@ -94,6 +114,9 @@ Item {
             // Refresh immediately for layout-changing events; the timer below
             // is a fallback for compositor state that has no matching event.
             var name = event && event.name ? event.name : "";
+            if (name === "configreloaded") {
+                borderSizeProcess.running = true;
+            }
             if (name === "workspace" || name === "focusedmon" || name === "openwindow" ||
                 name === "closewindow" || name === "movewindow" || name === "openlayer" ||
                 name === "closelayer" || name === "changefloatingmode" || name === "activewindow") {
@@ -245,9 +268,9 @@ Item {
                             height: parent.height
                             radius: 0
                             color: root.railColor
-                            opacity: parent.dragging
-                                     ? 0.5
-                                     : mouseArea.containsMouse ? 0.82 : 0
+                            // Hide the rail while dragging: gap geometry is frozen
+                            // during a drag, so it would no longer match the gap.
+                            opacity: !parent.dragging && mouseArea.containsMouse ? 0.82 : 0
 
                             Behavior on opacity {
                                 NumberAnimation { duration: 80 }
@@ -293,7 +316,12 @@ Item {
                                 );
                             }
 
-                            onReleased: parent.dragging = false;
+                            onReleased: {
+                                parent.dragging = false;
+                                // Refresh now so the input region and rail
+                                // snap to the gap's new position.
+                                root.refreshLayout();
+                            }
                             onCanceled: parent.dragging = false;
                         }
                     }
