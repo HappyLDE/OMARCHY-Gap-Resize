@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.leosilver.gap-resize",
   "name": "Gap Resize",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "EURYMEDON INTERACTIVE",
   "license": "MIT",
   "description": "Resize tiled windows by dragging the shared gap between them with a native resize cursor and visual guide rail.",

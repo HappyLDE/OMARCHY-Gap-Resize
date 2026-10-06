@@ -23,7 +23,7 @@ click-through, and the service follows Omarchy's current theme accent color.
 
 ## Install
 
-After this repository is public:
+Install from the public repository:
 
 ```sh
 omarchy plugin add https://github.com/HappyLDE/OMARCHY-Gap-Resize.git --enable
@@ -52,6 +52,22 @@ does not access the network or require elevated privileges.
 Rails are shown only while hovering a real gap between tiled windows on the
 active workspace of each monitor. Window borders do not activate the plugin.
 Floating, fullscreen, hidden, and pinned surfaces are ignored.
+
+## Update
+
+```sh
+omarchy plugin update io.github.leosilver.gap-resize
+omarchy restart shell
+```
+
+Restart Omarchy Shell after updating: the plugin's `keepLoaded` service can
+retain the previous code in memory during a plugin rescan. This restarts the
+bar and shell plugins while keeping application windows open; a PC restart
+is not required.
+
+Version 0.1.1 fixes invisible shared-gap input regions that could keep blocking
+clicks after switching to another workspace. Gap geometry, highlighting,
+cursors, and resizing behavior are unchanged.
 
 ## Remove
 
