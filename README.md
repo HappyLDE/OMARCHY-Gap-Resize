@@ -74,7 +74,7 @@ hyprctl keyword general:hover_icon_on_border true
 ```sh
 omarchy plugin validate .
 qmllint -I /usr/share/omarchy/shell Service.qml
-node --test tests/geometry.test.js
+node --test tests/*.test.js
 ```
 
 ## License

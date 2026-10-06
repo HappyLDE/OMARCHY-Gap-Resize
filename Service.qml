@@ -149,6 +149,10 @@ Item {
                 }
 
                 function rebuildInputRegions() {
+                    // Removing destroyed children does not notify Quickshell
+                    // that the mask changed. Clear the list explicitly so old
+                    // workspace gaps stop intercepting input immediately.
+                    inputRegion.regions.length = 0;
                     for (var i = 0; i < inputRegions.length; ++i) {
                         if (inputRegions[i]) {
                             inputRegions[i].destroy();
